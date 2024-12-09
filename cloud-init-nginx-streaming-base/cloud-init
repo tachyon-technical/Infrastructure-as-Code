@@ -2,6 +2,6 @@
 # Simple cloud-init to install Docker
 
 runcmd:
-  - [ wget, "", -O, "/tmp/nginx-stream-base.sh" ]
-  - [ chmod, 744, "/tmp/dockerfy.sh" ]
+  - [ wget, "https://raw.githubusercontent.com/tachyon-technical/Infrastructure-as-Code/refs/heads/main/cloud-init-nginx-streaming-base/nginx-stream-base.sh", -O, "/tmp/nginx-stream-base.sh" ]
+  - [ chmod, 744, "/tmp/nginx-stream-base.sh" ]
   - [ bash, "/tmp/nginx-stream-base.sh" ]
