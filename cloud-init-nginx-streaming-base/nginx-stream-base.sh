@@ -3,8 +3,8 @@
 NGINX="https://nginx.org"
 
 OPENSSL="https://www.openssl.org"
-L
-OG_FILE="/tmp/cloudinit.log"
+
+LOG_FILE="/tmp/cloudinit.log"
 
 ERR_FILE="/tmp/cloudinit_err.log"
 
@@ -70,7 +70,7 @@ WantedBy=multi-user.target
 EOF
 )
 
-$GCC_PROCS=1
+GCC_PROCS=1
 if [[ "$PROCS" -le 3 ]]; 
   then GCC_PROCS=1; 
 elif [[ "$PROCS" -ge 4 ]] && [[ "$PROCS" -le 7 ]]; 
