@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 
 NGINX="https://nginx.org"
-
 OPENSSL="https://www.openssl.org"
-
 LOG_FILE="/tmp/cloudinit.log"
-
 ERR_FILE="/tmp/cloudinit_err.log"
 
 OPENSSL_LATEST=$(wget -qO- --no-check-certificate $OPENSSL/source/ |
