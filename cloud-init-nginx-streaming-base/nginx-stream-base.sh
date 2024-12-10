@@ -136,9 +136,10 @@ execute_and_log "cd /tmp && tar -xvzf openssl-${OPENSSL_LATEST}.tar.gz && \
 	cd openssl-${OPENSSL_LATEST}" $LINENO
 
 echo "Configuring OpenSSL." >>$LOG_FILE
-execute_and_log "./config enable-ktls no-weak-ssl-ciphers no-ssl3 no-tls1 no-tls1_1 \
+execute_and_log "./config \
+  enable-ktls no-weak-ssl-ciphers no-ssl3 no-ssl3-method no-tls1 no-tls1_1 \
   no-idea no-psk no-srp no-srtp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2  \
-  zlib-dynamic threads thread-pool default-thread-pool \
+  no-legacy no-gost zlib-dynamic threads thread-pool default-thread-pool \
   --prefix=/opt/usr/local \
   --openssldir=/opt/usr/local/openssl \
   --libdir=/opt/usr/local/lib" $LINENO \
