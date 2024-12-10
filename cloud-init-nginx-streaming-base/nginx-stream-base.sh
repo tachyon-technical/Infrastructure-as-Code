@@ -32,6 +32,7 @@ NGINX_CONFIG=$(
 --with-http_v3_module \
 --with-http_mp4_module \
 --with-http_flv_module \
+--with-http_secure_link_module \
 --with-compat \
 --with-pcre-jit \
 --without-http_auth_basic_module \
@@ -41,7 +42,8 @@ NGINX_CONFIG=$(
 --without-http_scgi_module \
 --without-http_grpc_module \
 --without-http_memcached_module \
---with-cc-opt="-O3 -march=native -funroll-loops -ffast-math"
+--with-cc-opt="-O3 -march=native -funroll-loops -ffast-math -I /tmp/openssl-$OPENSSL_LATEST/include/" \
+--with-ld-opt="-L /opt/usr/local/lib -ldl -Wl,-rpath,/opt/usr/local/lib" \
 EOF
 )
 
@@ -135,14 +137,16 @@ execute_and_log "cd /tmp && tar -xvzf openssl-${OPENSSL_LATEST}.tar.gz && \
 
 echo "Configuring OpenSSL." >>$LOG_FILE
 execute_and_log "./config no-weak-ssl-ciphers no-ssl3 no-tls1 no-tls1_1 \
-  no-idea no-psk no-srp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2 \
-	--prefix=/usr zlib-dynamic --openssldir=/etc/ssl shared" $LINENO
+  no-idea no-psk no-srp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2 zlib-dynamic \
+  --prefix=/opt/usr/local \
+  --openssldir=/opt/usr/local/openssl \
+  --libdir=/opt/usr/local/lib" $LINENO \
 
 echo "Building OpenSSL." >>$LOG_FILE
 execute_and_log "make install_sw" $LINENO
 
-echo "Linking libraries." >>$LOG_FILE
-execute_and_log "ldconfig /usr/lib64/" $LINENO
+#echo "Linking libraries." >>$LOG_FILE
+#execute_and_log "ldconfig /usr/lib64/" $LINENO
 
 echo "Extracting Nginx." >>$LOG_FILE
 execute_and_log "cd /tmp && tar -xvzf nginx-${NGINX_LATEST}.tar.gz && \
