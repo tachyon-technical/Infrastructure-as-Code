@@ -43,7 +43,7 @@ NGINX_CONFIG=$(
 --without-http_grpc_module \
 --without-http_memcached_module \
 --with-cc-opt="-O3 -march=native -funroll-loops -ffast-math -I /tmp/openssl-$OPENSSL_LATEST/include/" \
---with-ld-opt="-L /opt/usr/local/lib -ldl -Wl,-rpath,/opt/usr/local/lib" \
+--with-ld-opt="-L /opt/usr/local/lib -ldl -Wl,-rpath,/opt/usr/local/lib"
 EOF
 )
 
