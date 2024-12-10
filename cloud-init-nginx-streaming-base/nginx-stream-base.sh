@@ -148,6 +148,7 @@ execute_and_log "./config \
   no-legacy no-gost threads thread-pool default-thread-pool \
   enable-brotli --with-brotli-lib=/opt/usr/local/lib \
   zlib-dynamic --with-zlib-lib=/opt/usr/local/lib \
+  enable-zstdynamic --with-zstd-lib=/opt/usr/local/lib \
   --prefix=/opt/usr/local \
   --openssldir=/opt/usr/local/openssl \
   --libdir=/opt/usr/local/lib" $LINENO 
