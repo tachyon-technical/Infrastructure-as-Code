@@ -44,7 +44,7 @@ NGINX_CONFIG=$(
 --without-http_scgi_module \
 --without-http_grpc_module \
 --without-http_memcached_module \
---with-cc-opt="-O3 -march=native"
+--with-cc-opt="-O3 -march=native -funroll-loops ffast-math"
 EOF
 )
 
@@ -145,7 +145,7 @@ echo "Building OpenSSL." >>$LOG_FILE
 execute_and_log "make install_sw" $LINENO
 
 echo "Linking libraries." >>$LOG_FILE
-execute_and_log "ldconfig /usr/lib64/ && ldconfig /usr/lib/x86_64-linux-gnu/" $LINENO
+execute_and_log "ldconfig /usr/lib64/" $LINENO
 
 echo "Extracting Nginx." >>$LOG_FILE
 execute_and_log "cd /tmp && tar -xvzf nginx-${NGINX_LATEST}.tar.gz && \
