@@ -106,6 +106,52 @@ execute_and_log "apt-get install -y git build-essential libpcre3 libpcre3-dev \
 echo "Changing to /tmp." >>$LOG_FILE
 execute_and_log "cd /tmp" $LINENO
 
+
+###### AUTOMATE THIS
+: '
+wget https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz
+tar xzf v1.1.0.tar.gz
+cd brotli-1.1.0/
+cmake -DCMAKE_INSTALL_PREFIX=/opt/usr/local -DCMAKE_LIBRARY_PATH=/opt/usr/local/lib64 -DCMAKE_BINARY_DIR=/opt/usr/local/bin -DCMAKE_CXX_FLAGS="-O3 -march=native -funroll-loops" -DCMAKE_C_FLAGS="-O3 -march=native -funroll-loops"
+make 
+make install
+
+wget   https://www.zlib.net/current/zlib.tar.gz
+tar xzf zlib.tar.gz
+cd zlib-1.3.1l
+setenv CFLAGS="-O3 -march=native -funroll-loops"
+
+./configure --prefix=/opt/usr/local --includedir=/opt/usr/local/include --libdir=/opt/usr/local/lib
+make 
+make -n install
+make install
+
+wget https://github.com/facebook/zstd/releases/download/v1.5.6/zstd-1.5.6.tar.gz
+tar xzf zstd-1.5.6.tar.gz
+cd zstd-1.5.6
+export INCLUDEDIR="/opt/usr/local/include"
+export LIBDIR="/opt/usr/local/lib"
+export PREFIX="/opt/usr/local/"
+make
+make install
+
+wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.bz2
+ar xvf pcre2-10.44.tar.bz2
+cd pcre2-10.44/
+
+./configure --prefix=/opt/usr/local --exec-prefix=/opt/usr/local --libdir=/opt/usr/local/lib --includedir=/opt/usr/local/include --enable-jit
+make -j
+make -n install
+make install
+
+https://github.com/ivmai/libatomic_ops/releases/download/v7.8.2/libatomic_ops-7.8.2.tar.gz
+tar xzf libatomic_ops-7.8.2.tar.gz
+cd libatomic_ops-7.8.2/
+
+./configure --prefix=/opt/usr/local --exec-prefix=/opt/usr/local --libdir=/opt/usr/local/lib --includedir=/opt/usr/local/include
+'
+
+
 echo "Downloading OpenSSL." >>$LOG_FILE
 execute_and_log "wget -qN ${OPENSSL}/source/openssl-${OPENSSL_LATEST}.tar.gz \
                  -O /tmp/openssl-${OPENSSL_LATEST}.tar.gz" $LINENO
