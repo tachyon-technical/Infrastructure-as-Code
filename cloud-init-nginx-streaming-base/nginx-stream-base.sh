@@ -145,10 +145,10 @@ echo "Configuring OpenSSL." >>$LOG_FILE
 execute_and_log "./config \
   enable-ktls no-weak-ssl-ciphers no-ssl3 no-ssl3-method no-tls1 no-tls1_1 \
   no-idea no-psk no-srp no-srtp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2  \
-  no-legacy no-gost threads thread-pool default-thread-pool \
+  no-legacy no-gost threads thread-pool \
   enable-brotli --with-brotli-lib=/opt/usr/local/lib \
   zlib-dynamic --with-zlib-lib=/opt/usr/local/lib \
-  enable-zstdynamic --with-zstd-lib=/opt/usr/local/lib \
+  enable-zst-dynamic --with-zstd-lib=/opt/usr/local/lib \
   --prefix=/opt/usr/local \
   --openssldir=/opt/usr/local/openssl \
   --libdir=/opt/usr/local/lib" $LINENO 
