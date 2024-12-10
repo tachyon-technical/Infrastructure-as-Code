@@ -27,7 +27,7 @@ NGINX_CONFIG=$(
 --with-threads \
 --with-file-aio \
 --with-http_ssl_module \
---with-http_v2_module \		
+--with-http_v2_module \
 --with-http_v3_module \
 --with-http_mp4_module \
 --with-http_flv_module \
