@@ -47,6 +47,10 @@ NGINX_CONFIG=$(
 EOF
 )
 
+## These can be added if compiling alongside OpenSSL
+## --with-openssl= \
+## --with-openssl-opt=enable-ktls \
+
 NGINX_SYSTEMD_UNIT=$(
 	cat <<EOF
 [Unit]
