@@ -135,6 +135,8 @@ echo "Downloading Nginx digital signature." >>$LOG_FILE
 execute_and_log "wget -qN ${NGINX}/download/nginx-${NGINX_LATEST}.tar.gz.asc \
 	-O /tmp/nginx-${NGINX_LATEST}.tar.gz.asc" $LINENO
 
+# Derp verify digital signature
+
 echo "Extracting OpenSSL." >>$LOG_FILE
 execute_and_log "cd /tmp && tar -xvzf openssl-${OPENSSL_LATEST}.tar.gz && \
 	cd openssl-${OPENSSL_LATEST}" $LINENO
