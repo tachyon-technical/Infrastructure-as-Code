@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
 NGINX="https://nginx.org"
+
 OPENSSL="https://www.openssl.org"
-LOG_FILE="/tmp/cloudinit.log"
+L
+OG_FILE="/tmp/cloudinit.log"
+
 ERR_FILE="/tmp/cloudinit_err.log"
 
 OPENSSL_LATEST=$(wget -qO- --no-check-certificate $OPENSSL/source/ |
@@ -67,6 +70,16 @@ WantedBy=multi-user.target
 EOF
 )
 
+$GCC_PROCS=1
+if [[ "$PROCS" -le 3 ]]; 
+  then GCC_PROCS=1; 
+elif [[ "$PROCS" -ge 4 ]] && [[ "$PROCS" -le 7 ]]; 
+  then GCC_PROCS=2; 
+elif [[ "$PROCS" -ge 8 ]] && [[ "$PROCS" -le 13 ]]; 
+  then GCC_PROCS=4; 
+else 
+  GCC_PROCS=6; fi
+
 function execute_and_log {
 	if
 		CMD_LINE=$2
@@ -129,7 +142,7 @@ execute_and_log "./config no-weak-ssl-ciphers no-ssl3 no-tls1 no-tls1_1 \
 	--prefix=/usr zlib-dynamic --openssldir=/etc/ssl shared" $LINENO
 
 echo "Building OpenSSL." >>$LOG_FILE
-execute_and_log "make -j$(nproc) install_sw" $LINENO
+execute_and_log "make install_sw" $LINENO
 
 echo "Linking libraries." >>$LOG_FILE
 execute_and_log "ldconfig /usr/lib64/ && ldconfig /usr/lib/x86_64-linux-gnu/" $LINENO
@@ -142,7 +155,7 @@ echo "Configuring Nginx." >>$LOG_FILE
 execute_and_log "$NGINX_CONFIG" $LINENO
 
 echo "Building Nginx." >>$LOG_FILE
-execute_and_log "make -j$(nproc) install" $LINENO
+execute_and_log "make -j$GCC_PROCS install" $LINENO
 
 echo "Creating Nginx PID file" >>$LOG_FILE
 execute_and_log "sed -i -Ee 's|^#?pid.*$|pid  /etc/nginx/nginx.pid;|' \
