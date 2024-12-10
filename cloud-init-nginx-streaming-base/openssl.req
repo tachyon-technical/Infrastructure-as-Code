@@ -1,0 +1,34 @@
+# Basic OpenSSL config for generating a 
+# CSR. FQDN and IP need to be updated.
+# The remainder of req_distinguished_name 
+# may optionally be updated.
+
+# openssl ecparam -name secp256r1 -genkey -noout -out privkey.key
+# openssl req -new -sha256 -key privkey.key -out deleteme.4cm3.lol.csr -config osslreq.cnf
+
+FQDN = deleteme.4cm3.lol
+IP = 24.199.126.204
+
+[ req ]
+prompt			= no
+days			= 90
+default_md		= sha256
+distinguished_name	= req_distinguished_name
+req_extensions		= v3_req
+
+[ req_distinguished_name ]
+countryName		= US
+stateOrProvinceName	= Arizona
+localityName		= Phoenix
+organizationName	= LabLocal
+commonName 		= $FQDN
+
+[ v3_req ]
+basicConstraints	= CA:FALSE
+keyUsage		= nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage	= serverAuth
+subjectAltName		= @sans
+
+[ sans ]
+DNS.0 = $FQDN
+#IP.0 = 
