@@ -23,7 +23,7 @@ NGINX_CONFIG=$(
 --pid-path=/etc/nginx/nginx.pid \
 --lock-path=/etc/nginx/nginx.lock \
 --user=www-data \
---group=www-date \
+--group=www-data \
 --with-threads \
 --with-file-aio \
 --with-http_ssl_module \
@@ -128,8 +128,10 @@ execute_and_log "./config no-weak-ssl-ciphers no-ssl3 no-tls1 no-tls1_1 \
 	--prefix=/usr zlib-dynamic --openssldir=/etc/ssl shared" $LINENO
 
 echo "Building OpenSSL." >>$LOG_FILE
-execute_and_log "make -j$(nproc) install_sw && ldconfig /usr/lib64/ && \
-	ldconfig /usr/lib/x86_64-linux-gnu/" $LINENO
+execute_and_log "make -j$(nproc) install_sw" $LINENO
+
+echo "Linking libraries." >>$LOG_FILE
+execute_and_log "ldconfig /usr/lib64/ && ldconfig /usr/lib/x86_64-linux-gnu/"
 
 echo "Extracting Nginx." >>$LOG_FILE
 execute_and_log "cd /tmp && tar -xvzf nginx-${NGINX_LATEST}.tar.gz && \
@@ -141,8 +143,12 @@ execute_and_log "$NGINX_CONFIG" $LINENO
 echo "Building Nginx." >>$LOG_FILE
 execute_and_log "make -j$(nproc) install" $LINENO
 
+echo "Creating Nginx PID file" >>$LOG_FILE
+execute_and_log "sed -Ee 's|^#?pid.*$|pid  /etc/nginx/nginx.pid|' /etc/nginx/nginx.conf \
+  -e 's|^#?user.*$|user  www-data|' /etc/nginx/nginx.conf && touch /etc/nginx/nginx.pid && \
+  chown www-data:www-data /etc/nginx/nginx.pid"
+
 echo "Configuring SystemD daemon."
 execute_and_log "echo $NGINX_SYSTEMD_UNIT > /usr/lib/systemd/system/nginx.service && \
-	systemctl daemon-reload && touch /etc/nginx/nginx.pid && \
-	chown www-data:www-date /etc/nginx/nginx.pid && \
+	systemctl daemon-reload && \
 	systemctl start nginx.service" $LINENO
