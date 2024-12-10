@@ -94,7 +94,7 @@ echo "Running updates." >>$LOG_FILE
 execute_and_log "apt-get update -y" $LINENO
 
 echo "Installing dependencies." >>$LOG_FILE
-execute_and_log "apt-get install git build-essential libpcre3 libpcre3-dev \
+execute_and_log "apt-get install -y git build-essential libpcre3 libpcre3-dev \
 	zlib1g zlib1g-dev libssl-dev libgd-dev libxml2 libxml2-dev \
 	uuid-dev ca-certificates" $LINENO
 
