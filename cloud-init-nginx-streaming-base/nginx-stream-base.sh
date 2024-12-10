@@ -3,6 +3,7 @@
 NGINX="https://nginx.org"
 OPENSSL="https://www.openssl.org"
 LOG_FILE="/tmp/cloudinit.log"
+ERR_FILE="/tmp/cloudinit_err.log"
 
 OPENSSL_LATEST=$(wget -qO- --no-check-certificate $OPENSSL/source/ |
 	grep -Eo 'openssl-[A-Za-z0-9\.]+.tar.gz' |
@@ -69,7 +70,7 @@ EOF
 function execute_and_log {
 	if
 		CMD_LINE=$2
-		eval "$1" >/dev/null 2>&1
+  		eval "$1" >/dev/null 2>>$ERR_FILE
 	then
 		echo -e "\tSuccess. [Line $CMD_LINE]" >>$LOG_FILE
 	else
