@@ -147,7 +147,7 @@ execute_and_log "./config \
   no-idea no-psk no-srp no-srtp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2  \
   no-legacy no-gost threads \
   enable-brotli --with-brotli-lib=/opt/usr/local/lib --with-brotli-include=/opt/usr/local/include/brotli \
-  zlib-dynamic --with-zlib-lib=/opt/usr/local/lib -with-zlib-lib=/opt/usr/local/include \
+  zlib-dynamic --with-zlib-lib=/opt/usr/local/lib -with-zlib-include=/opt/usr/local/include \
   enable-zstd-dynamic --with-zstd-lib=/opt/usr/local/lib --with-zstd-include=/opt/usr/local/include/\
   --prefix=/opt/usr/local \
   --openssldir=/opt/usr/local/openssl \
