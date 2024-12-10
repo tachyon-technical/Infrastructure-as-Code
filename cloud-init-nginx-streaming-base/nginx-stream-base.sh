@@ -42,7 +42,8 @@ NGINX_CONFIG=$(
 --without-http_scgi_module \
 --without-http_grpc_module \
 --without-http_memcached_module \
---with-cc-opt="-O3 -march=native -funroll-loops -ffast-math -I /opt/usr/local/include/openssl/" \
+--with-cc-opt="-O3 -march=native -funroll-loops -ffast-math -I /opt/usr/local/include/openssl/ \
+   -I /opt/usr/local/include/ -I /opt/usr/local/include/atomic_ops" \
 --with-ld-opt="-L /opt/usr/local/lib -ldl -Wl,-rpath,/opt/usr/local/lib"
 EOF
 )
