@@ -131,7 +131,7 @@ echo "Building OpenSSL." >>$LOG_FILE
 execute_and_log "make -j$(nproc) install_sw" $LINENO
 
 echo "Linking libraries." >>$LOG_FILE
-execute_and_log "ldconfig /usr/lib64/ && ldconfig /usr/lib/x86_64-linux-gnu/"
+execute_and_log "ldconfig /usr/lib64/ && ldconfig /usr/lib/x86_64-linux-gnu/" $LINENO
 
 echo "Extracting Nginx." >>$LOG_FILE
 execute_and_log "cd /tmp && tar -xvzf nginx-${NGINX_LATEST}.tar.gz && \
@@ -144,11 +144,11 @@ echo "Building Nginx." >>$LOG_FILE
 execute_and_log "make -j$(nproc) install" $LINENO
 
 echo "Creating Nginx PID file" >>$LOG_FILE
-execute_and_log "sed -Ee 's|^#?pid.*$|pid  /etc/nginx/nginx.pid|' /etc/nginx/nginx.conf \
-  -e 's|^#?user.*$|user  www-data|' /etc/nginx/nginx.conf && touch /etc/nginx/nginx.pid && \
-  chown www-data:www-data /etc/nginx/nginx.pid"
+execute_and_log "sed -i -Ee 's|^#?pid.*$|pid  /etc/nginx/nginx.pid;|' \
+  -e 's|^#?user.*$|user  www-data;|' /etc/nginx/nginx.conf && touch /etc/nginx/nginx.pid && \
+  chown www-data:www-data /etc/nginx/nginx.pid"  $LINENO
 
 echo "Configuring SystemD daemon."
-execute_and_log "echo $NGINX_SYSTEMD_UNIT > /usr/lib/systemd/system/nginx.service && \
+execute_and_log 'echo "$NGINX_SYSTEMD_UNIT" > /usr/lib/systemd/system/nginx.service && \
 	systemctl daemon-reload && \
-	systemctl start nginx.service" $LINENO
+	systemctl start nginx.service' $LINENO
