@@ -41,7 +41,7 @@ NGINX_CONFIG=$(
 --without-http_scgi_module \
 --without-http_grpc_module \
 --without-http_memcached_module \
---with-cc-opt="-O3 -march=native -funroll-loops ffast-math"
+--with-cc-opt="-O3 -march=native -funroll-loops -ffast-math"
 EOF
 )
 
