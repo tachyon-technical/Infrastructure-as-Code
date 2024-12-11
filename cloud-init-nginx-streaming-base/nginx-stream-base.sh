@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-
-
-
 BROTLI="https://github.com/google/brotli"
 ZLIB="https://www.zlib.net/current/zlib.tar.gz"
 ZSTD="https://github.com/facebook/zstd"
@@ -24,10 +21,20 @@ NGINX_LATEST=$(wget -qO- --no-check-certificate $NGINX/download/ |
 
 BROTLI_LATEST=$(cut -c5- <<< $(curl -s -L --insecure "$BROTLI/releases/latest" | \
 		grep -Eo "tag/v[0-9\.]+" | uniq))
-
+  
 ZLIB_LATEST=$(curl -s -L --insecure "https://www.zlib.net/fossils/?C=M;O=D"  | \
 	    grep -Eo "zlib-[0-9\.]+" | sort -u -r | sed -n '1p' | 
     	    sed -r 's|zlib-([0-9\.]+)\.|\1|')
+
+ZSTD_LATEST=$(cut -c6- <<< $(curl -s -L --insecure "$ZSTD/releases/latest" | \
+                grep -Eo "tag/v[0-9\.]+" | uniq ))
+
+PCRE2_LATEST=$(curl -s -L --insecure "$PCRE2/releases/latest" | \
+	     grep -o "pcre2-[0-9\.]\{3,\}" | \
+      	     grep -Eo "([0-9]{1,3}\.)[0-9]+" | uniq )
+
+LIBATOMIC_LATEST=$(cut -c5- <<< $(curl -s -L --insecure "$LIBATOMIC/releases/latest" | \
+		grep -Eo "tag/v[0-9\.]+" | uniq ))
 
 NGINX_CONFIG=$(
 	cat <<EOF
