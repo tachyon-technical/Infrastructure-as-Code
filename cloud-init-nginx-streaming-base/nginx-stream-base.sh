@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
-NGINX="https://nginx.org"
+
+
+
+BROTLI="https://github.com/google/brotli"
+ZLIB="https://www.zlib.net/current/zlib.tar.gz"
+ZSTD="https://github.com/facebook/zstd"
+PCRE2="https://github.com/PCRE2Project/pcre2"
+LIBATOMIC="https://github.com/ivmai/libatomic_ops"
 OPENSSL="https://www.openssl.org"
+NGINX="https://nginx.org"
+
 LOG_FILE="/tmp/cloudinit.log"
 ERR_FILE="/tmp/cloudinit_err.log"
 
@@ -10,6 +19,10 @@ OPENSSL_LATEST=$(wget -qO- --no-check-certificate $OPENSSL/source/ |
 	sort -V | tail -1 | sed -nre 's|^[^0-9]*(([0-9]+\.)*[A-Za-z0-9]+).tar.*|\1|p')
 
 NGINX_LATEST=$(wget -qO- --no-check-certificate $NGINX/download/ |
+	grep -Eo 'nginx-[A-Za-z0-9\.]+.tar.gz' |
+	sort -V | tail -1 | sed -nre 's|^[^0-9]*(([0-9]+\.)*[A-Za-z0-9]+).tar.*|\1|p')
+
+NGINX_LATEST=$(wget -qO- --no-check-certificate $BROTLI/tags/ |
 	grep -Eo 'nginx-[A-Za-z0-9\.]+.tar.gz' |
 	sort -V | tail -1 | sed -nre 's|^[^0-9]*(([0-9]+\.)*[A-Za-z0-9]+).tar.*|\1|p')
 
