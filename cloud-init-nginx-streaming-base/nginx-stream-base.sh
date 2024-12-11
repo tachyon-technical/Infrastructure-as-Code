@@ -22,9 +22,12 @@ NGINX_LATEST=$(wget -qO- --no-check-certificate $NGINX/download/ |
 	grep -Eo 'nginx-[A-Za-z0-9\.]+.tar.gz' |
 	sort -V | tail -1 | sed -nre 's|^[^0-9]*(([0-9]+\.)*[A-Za-z0-9]+).tar.*|\1|p')
 
-NGINX_LATEST=$(wget -qO- --no-check-certificate $BROTLI/tags/ |
-	grep -Eo 'nginx-[A-Za-z0-9\.]+.tar.gz' |
-	sort -V | tail -1 | sed -nre 's|^[^0-9]*(([0-9]+\.)*[A-Za-z0-9]+).tar.*|\1|p')
+BROTLI_LATEST=$(cut -c5- <<< $(curl -s -L --insecure "$BROTLI/releases/latest" | \
+		grep -Eo "tag/v[0-9\.]+" | uniq))
+
+ZLIB_LATEST=$(curl -s -L --insecure "https://www.zlib.net/fossils/?C=M;O=D"  | \
+	    grep -Eo "zlib-[0-9\.]+" | sort -u -r | sed -n '1p' | 
+    	    sed -r 's|zlib-([0-9\.]+)\.|\1|')
 
 NGINX_CONFIG=$(
 	cat <<EOF
