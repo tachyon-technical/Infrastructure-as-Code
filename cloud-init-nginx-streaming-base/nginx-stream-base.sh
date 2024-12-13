@@ -12,7 +12,7 @@ read NGINX_LATEST < <(wget -qO- --no-check-certificate $NGINX/download/ |
 
 NGINX_CONFIG=$(
 	cat <<EOF
-./configure --prefix=/opt/usr/share/\
+./configure --prefix=/opt/usr/share/ \
 --sbin-path=$PREFIX/bin \
 --modules-path=/etc/nginx/modules \
 --conf-path=/etc/nginx/nginx.conf \
