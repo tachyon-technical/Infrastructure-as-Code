@@ -57,7 +57,6 @@ enable-zstd-dynamic --with-zstd-lib=$LIB_DIR --with-zstd-include=$INCLUDE_DIR/zs
 --prefix=$PREFIX \
 --openssldir=$PREFIX/etc/openssl \
 --libdir=$LIB_DIR
-    
 EOF
 )
 
@@ -75,9 +74,9 @@ Wants=network-online.target
 [Service]
 Type=forking
 PIDFile=/etc/nginx/nginx.pid
-ExecStartPre=/usr/sbin/nginx -t -q -g 'daemon on; master_process on;'
-ExecStart=/usr/sbin/nginx -g 'daemon on; master_process on;'
-ExecReload=/usr/sbin/nginx -g 'daemon on; master_process on;' -s reload
+ExecStartPre=$PREFIX/bin/nginx -t -q -g 'daemon on; master_process on;'
+ExecStart=$PREFIX/bin/nginx -g 'daemon on; master_process on;'
+ExecReload=$PREFIX/bin/nginx -g 'daemon on; master_process on;' -s reload
 ExecStop=-/sbin/start-stop-daemon --quiet --stop --retry QUIT/5 --pidfile /etc/nginx/nginx.pid
 TimeoutStopSec=5
 KillMode=mixed
@@ -138,7 +137,7 @@ execute_and_log "cd /tmp && tar -xvzf openssl-${OPENSSL_LATEST}.tar.gz && \
 	cd openssl-${OPENSSL_LATEST}" $0 $LINENO
 
 echo "Configuring OpenSSL." >>$LOG_FILE
-execute_and_log "" $0 $LINENO 
+execute_and_log "$OPENSSL_CONFIG" $0 $LINENO 
 
 echo "Building OpenSSL." >>$LOG_FILE
 execute_and_log "make install_sw" $0 $LINENO
