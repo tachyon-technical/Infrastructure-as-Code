@@ -47,16 +47,20 @@ EOF
 
 OPENSSL_CONF=$(
     cat <<EOF
-./config \
-enable-ktls no-weak-ssl-ciphers no-ssl3 no-ssl3-method no-tls1 no-tls1_1 \
-no-idea no-psk no-srp no-srtp no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2  \
+./Configure enable-ktls no-weak-ssl-ciphers no-ssl3 no-ssl3-method \
+no-tls1 no-tls1_1 no-idea no-psk no-srp no-srtp \
+no-des no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-mdc2 \
 no-legacy no-gost threads \
-enable-brotli --with-brotli-lib=$LIB_DIR --with-brotli-include=$INCLUDE_DIR/brotli \
-zlib-dynamic --with-zlib-lib=$LIB_DIR --with-zlib-include=$INCLUDE_DIR/zlib \
-enable-zstd-dynamic --with-zstd-lib=$LIB_DIR --with-zstd-include=$INCLUDE_DIR/zstd \
+enable-brotli --with-brotli-lib=$LIB_DIR \
+--with-brotli-include=$INCLUDE_DIR/brotli \
+zlib-dynamic --with-zlib-lib=$LIB_DIR \
+--with-zlib-include=$INCLUDE_DIR/zlib \
+enable-zstd-dynamic --with-zstd-lib=$LIB_DIR \
+--with-zstd-include=$INCLUDE_DIR/zstd \
 --prefix=$PREFIX \
---openssldir=$PREFIX/etc/openssl \
---libdir=$LIB_DIR
+--openssldir=$PREFIX \
+--libdir=$LIB_DIR \
+-O3 -march=native -funroll-loops -L$LIB_DIR -Wl,-rpath=$LIB_DIR
 EOF
 )
 
