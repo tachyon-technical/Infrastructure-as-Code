@@ -1,0 +1,104 @@
+#cloud-config
+
+groups:
+  - ansible_sudo
+
+users:
+  - name: shane
+    gecos: shane s.
+    primary_group: shane
+    groups: sudo
+    # ssh-keygen -t ed25519 -f shane
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEQh9D64fegn9BIl41vq+But14+iaF4t9xGyab4zCeL shane@MacBookPro.localdomain
+    # openssl passwd -6 Lily@363
+    passwd: $6$f/RHiMqkRXdHjipM$YsXRqW5FLxobA15DgSjOdmu8e1Fp66JKeTzelpgJ23tzrpx4jHYJgjsKJcsfjmQbEhcZUs.7jPu4De/cA96.y0
+    lock_passwd: false
+    shell: /bin/bash
+  - name: ansible
+    gecos: ansible service
+    primary_group: ansible
+    groups: ansible_sudo
+    # ssh-keygen -t ed25519 -f ansible
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBk6fj6P3d9fmCIEl1tBpJmfpiiACXtaGpc9fvqAY0mN shane@Shanes-Laptop.local
+    # openssl passwd -6 Dazey@525
+    passwd: $6$f/RHiMqkRXdHjipM$YsXRqW5FLxobA15DgSjOdmu8e1Fp66JKeTzelpgJ23tzrpx4jHYJgjsKJcsfjmQbEhcZUs.7jPu4De/cA96.y0
+    lock_passwd: false
+    shell: /bin/sh
+
+write_files:
+  - path: /etc/sudoers.d/77-ansible-sudo 
+    defer: true
+    encoding: b64
+    owner: root:root  
+    permissions: 0o644
+    content: IyBSdWxlcyBmb3IgYW5zaWJsZV9zdWRvIGdyb3VwCiMKCkNtbmRfQWxpYXMgQU5TSUJMRV9MT0NBTCA9IC9iaW4vc2ggXi1jXCBlY2hvXCBCRUNPTUUtU1VDQ0VTUy1bYS16XXszMn1cIDtcIC9ob21lL2Fuc2libGUvLnB5dGhvbi0zLlswLTldezEsMn0uWzAtOV17MSwyfS9iaW4vcHl0aG9uM1wgL2hvbWUvYW5zaWJsZS9cLmFuc2libGUvdG1wL2Fuc2libGUtdG1wLVswLTkuLV0rL0Fuc2liYWxsWl9bYS16QS1aMC05X10rLnB5JAoKJWFuc2libGVfc3VkbwlBTEw9KEFMTCkgQU5TSUJMRV9MT0NBTAoK
+  - path: /home/ansible/.profile
+    defer: true
+    append: true
+    content: |
+      LATEST_PYTHON_DIR=$(ls -ad $HOME/.python-3* | sort --version-sort  -r | head -n 1)
+      if [ -d "$LATEST_PYTHON_DIR/bin" ] ; then
+        PATH="$LATEST_PYTHON_DIR/bin:$PATH"
+      fi
+  - path: /etc/ssh/sshd_config
+    defer: true
+    append: false
+    content: |
+      ### IPv4 - 2244 ansible/2266 shane
+      AddressFamily inet
+      Port 2244
+      Port 2266
+      ### Authentication
+      LoginGraceTime 2m
+      PermitRootLogin no
+      StrictModes yes
+      PubkeyAuthentication yes
+      UsePAM yes
+      KbdInteractiveAuthentication no
+      PasswordAuthentication no
+      IgnoreRhosts yes
+      ### Disable forwarding
+      DisableForwarding yes
+      ### Allow client to pass locale environment variables
+      AcceptEnv LANG LC_*
+      ### override default of no subsystems
+      Subsystem	sftp	/usr/lib/openssh/sftp-server
+      ### Port 2244 is for Ansible
+      Match LocalPort=2244
+        AllowUsers ansible
+      ### Port 2266 is for Shane
+      Match LocalPort=2266
+        AllowUsers shane
+
+packages:
+  - build-essential
+  - gdb
+  - lcov
+  - pkg-config
+  - libbz2-dev
+  - libffi-dev
+  - libgdbm-dev 
+  - libgdbm-compat-dev
+  - liblzma-dev 
+  - libncurses5-dev
+  - libreadline6-dev 
+  - libsqlite3-dev
+  - libssl-dev 
+  - lzma
+  - lzma-dev
+  - tk-dev 
+  - uuid-dev
+  - zlib1g-dev 
+  - libmpdec-dev
+
+runcmd:
+  - "sleep 210"
+  - "systemctl daemon-reload"
+  - "systemctl restart ssh.socket"
+  - "sleep 90"
+  - "cd /home/ansible && mkdir .python-3.12.8 && wget https://www.python.org/ftp/python/3.12.8/Python-3.12.8.tgz && tar xzf Python-3.12.8.tgz"
+  - "cd /home/ansible/Python-3.12.8 && ./configure --prefix=/home/ansible/.python-3.12.8/ --enable-optimizations --enable-lto && make -j $(nproc) && make altinstall"
+  - "cd /home/ansible/.python-3.12.8/bin/ && ln -s pip3.12 pip3 && ln -s python3.12 python3"
+  - "chown -R ansible:ansible /home/ansible/"
