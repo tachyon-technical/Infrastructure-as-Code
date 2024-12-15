@@ -1,0 +1,164 @@
+## template: jinja
+#cloud-config
+
+# Variables
+# For admin user and his/her ssh port
+{% set admin_user = 
+  ({  "name": "shane",
+      "sudo_group": "sudo",
+      "gecos": "human administrator",
+      "shell": "/bin/bash",
+      "locked": false, 
+      "port": 2244  }) %}
+
+# For ansible user and its ssh port
+{% set ansible_user = 
+  ({  "name": "ansible",
+      "sudo_group": "ansible_sudo",
+      "gecos": "ansible service account",
+      "shell": "/bin/sh",
+      "locked": false,
+      "port": 2266 }) %}
+
+# Current python version
+{% set python = 
+  ({  "version": "3.12.8",
+      "py_binary": "python3.12",
+      "pip_binary": "pip3.12",
+      "source": "Python-3.12.8"  }) %}
+
+# Seperate sudo group for ansible user
+groups:
+  - {{ ansible_user["sudo_group"] }}
+
+# create users (human admin and ansible ssh user)
+users:
+  - name: {{ admin_user["name"] }}
+    gecos: {{ admin_user["gecos"] }}
+    primary_group: {{ admin_user["name"] }}
+    groups: {{ admin_user["sudo_group"] }}
+    # ssh-keygen -t ed25519
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKEQh9D64fegn9BIl41vq+But14+iaF4t9xGyab4zCeL shane@MacBookPro.localdomain
+    # openssl passwd -6 Lily@363
+    passwd: $6$f/RHiMqkRXdHjipM$YsXRqW5FLxobA15DgSjOdmu8e1Fp66JKeTzelpgJ23tzrpx4jHYJgjsKJcsfjmQbEhcZUs.7jPu4De/cA96.y0
+    lock_passwd: {{ admin_user["locked"] }}
+    shell: {{ admin_user["shell"] }}
+  - name: {{ ansible_user["name"] }}
+    gecos: {{ ansible_user["gecos"] }}
+    primary_group: {{ ansible_user["name"] }}
+    groups: {{ ansible_user["sudo_group"] }}
+    # ssh-keygen -t ed25519
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBk6fj6P3d9fmCIEl1tBpJmfpiiACXtaGpc9fvqAY0mN shane@Shanes-Laptop.local
+    # openssl passwd -6 Dazey@525
+    passwd: $6$f/RHiMqkRXdHjipM$YsXRqW5FLxobA15DgSjOdmu8e1Fp66JKeTzelpgJ23tzrpx4jHYJgjsKJcsfjmQbEhcZUs.7jPu4De/cA96.y0
+    lock_passwd: {{ ansible_user["locked"] }}
+    shell: {{ ansible_user["shell"] }}
+
+# 1) Add sudoers entry allowing ansible to elevate using sudo
+# to run its ansible stuff
+# 2) Create custom python3.xx file for ansible user
+# We may also make an AppArmor profile for this
+# 3) Update sshd_config to allow ansible_user on one port,
+# human admin on another port, and leave 22 open for fail2ban chum
+write_files:
+  - path: /etc/sudoers.d/77-{{ ansible_user["sudo_group"] }}
+    defer: true
+    encoding: b64
+    owner: root:root  
+    permissions: 0o644
+    content: IyBSdWxlcyBmb3IgYW5zaWJsZV9zdWRvIGdyb3VwCiMKCkNtbmRfQWxpYXMgQU5TSUJMRV9MT0NBTCA9IC9iaW4vc2ggXi1jXCBlY2hvXCBCRUNPTUUtU1VDQ0VTUy1bYS16XXszMn1cIDtcIC9ob21lL2Fuc2libGUvLnB5dGhvbi0zLlswLTldezEsMn0uWzAtOV17MSwyfS9iaW4vcHl0aG9uM1wgL2hvbWUvYW5zaWJsZS9cLmFuc2libGUvdG1wL2Fuc2libGUtdG1wLVswLTkuLV0rL0Fuc2liYWxsWl9bYS16QS1aMC05X10rLnB5JAoKJWFuc2libGVfc3VkbwlBTEw9KEFMTCkgQU5TSUJMRV9MT0NBTAoK
+  - path: /home/{{ ansible_user["name"] }}/.profile
+    defer: true
+    append: true
+    content: |
+      LATEST_PYTHON_DIR=$(ls -ad $HOME/.python-3* | sort --version-sort  -r | head -n 1)
+      if [ -d "$LATEST_PYTHON_DIR/bin" ] ; then
+        PATH="$LATEST_PYTHON_DIR/bin:$PATH"
+      fi
+  - path: /etc/ssh/sshd_config
+    defer: true
+    append: false
+    content: |
+      ### IPv4 
+      AddressFamily inet
+      Port 22
+      Port {{ ansible_user["port"] }}
+      Port {{ admin_user["port"] }}
+      ### Authentication
+      LoginGraceTime 2m
+      PermitRootLogin no
+      StrictModes yes
+      PubkeyAuthentication yes
+      UsePAM yes
+      KbdInteractiveAuthentication no
+      PasswordAuthentication no
+      IgnoreRhosts yes
+      ### Disable forwarding
+      DisableForwarding yes
+      ### Allow client to pass locale environment variables
+      AcceptEnv LANG LC_*
+      ### override default of no subsystems
+      Subsystem	sftp	/usr/lib/openssh/sftp-server
+      ### Port {{ ansible_user["port"] }} is for {{ ansible_user["name"] }}
+      Match LocalPort={{ ansible_user["port"] }}
+        AllowUsers {{ ansible_user["name"] }}
+      ### Port {{ admin_user["port"] }} is for {{ admin_user["name"] }}
+      Match LocalPort={{ admin_user["port"] }}
+        AllowUsers {{ admin_user["name"] }}
+      ### Port 22 is for bots
+      Match LocalPort=22
+        DenyUsers *
+- path: /etc/fail2ban/jail.d/ssh.conf
+    defer: true
+    append: false
+    content: |
+      [sshd]
+      backend = systemd
+      enabled = true
+      mode = aggressive
+      banaction = ufw[kill-mode=ss]
+      port = 22,2244,2266
+      filter = sshd
+      logpath = /var/log/auth.log
+      findtime = 900s
+      bantime = 900s
+      ignoreip = 68.96.0.0/16
+package_update: true
+package_upgrade: true
+packages:
+  - fail2ban
+  - acl
+  - build-essential
+  - gdb
+  - lcov
+  - pkg-config
+  - libbz2-dev
+  - libffi-dev
+  - libgdbm-dev 
+  - libgdbm-compat-dev
+  - liblzma-dev 
+  - libncurses5-dev
+  - libreadline6-dev 
+  - libsqlite3-dev
+  - libssl-dev 
+  - lzma
+  - lzma-dev
+  - tk-dev 
+  - uuid-dev
+  - zlib1g-dev 
+  - libmpdec-dev
+
+runcmd:
+  - "sleep 60"
+  - "systemctl daemon-reload"
+  - "systemctl restart ssh.socket"
+  - "sleep 60"
+  - "ufw enable && ufw allow from any to any port {{ ansible_user["port"] }} proto tcp && ufw allow from any to any port {{ admin_user["port"] }} proto tcp"
+  - "cd /home/{{ ansible_user["name"] }} && mkdir .python-{{ python["version"] }} && wget https://www.python.org/ftp/python/{{ python["version"] }}/{{ python["source"] }}.tgz && tar xzf {{ python["source"] }}.tgz"
+  - "cd /home/{{ ansible_user["name"] }}/{{ python["source"] }} && ./configure --prefix=/home/{{ ansible_user["name"] }}/.python-{{ python["version"] }}/ --enable-optimizations --enable-lto && make -j $(nproc) && make altinstall"
+  - "cd /home/{{ ansible_user["name"] }}/.python-{{ python["version"] }}/bin/ && ln -s {{ python["pip_binary"] }} pip3 && ln -s {{ python["py_binary"] }} python3"
+  - "chown -R {{ ansible_user["name"] }}:{{ ansible_user["name"] }} /home/{{ ansible_user["name"] }}/"
+  - "setfacl -m u:ansible:000 /usr/bin/python*"
+  - "setfacl -m u:ansible:000 /bin/python*"
