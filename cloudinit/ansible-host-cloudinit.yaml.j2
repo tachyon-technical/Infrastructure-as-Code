@@ -2,36 +2,36 @@
 #cloud-config
 
 # Variables
-# For admin user and his/her ssh port
+
 {% set admin_user = 
   ({  "name": "shane",
       "sudo_group": "sudo",
       "gecos": "human administrator",
       "shell": "/bin/bash",
       "locked": false, 
-      "port": 2244  }) %}
+      "port": 2244  }) 
+%}
 
-# For ansible user and its ssh port
 {% set ansible_user = 
   ({  "name": "ansible",
       "sudo_group": "ansible_sudo",
       "gecos": "ansible service account",
       "shell": "/bin/sh",
       "locked": false,
-      "port": 2266 }) %}
+      "port": 2266 }) 
+%}
 
-# Current python version
 {% set python = 
   ({  "version": "3.12.8",
       "py_binary": "python3.12",
       "pip_binary": "pip3.12",
-      "source": "Python-3.12.8"  }) %}
+      "source": "Python-3.12.8"  }) 
+%}
 
-# Seperate sudo group for ansible user
+
 groups:
   - {{ ansible_user["sudo_group"] }}
 
-# create users (human admin and ansible ssh user)
 users:
   - name: {{ admin_user["name"] }}
     gecos: {{ admin_user["gecos"] }}
@@ -56,12 +56,6 @@ users:
     lock_passwd: {{ ansible_user["locked"] }}
     shell: {{ ansible_user["shell"] }}
 
-# 1) Add sudoers entry allowing ansible to elevate using sudo
-# to run its ansible stuff
-# 2) Create custom python3.xx file for ansible user
-# We may also make an AppArmor profile for this
-# 3) Update sshd_config to allow ansible_user on one port,
-# human admin on another port, and leave 22 open for fail2ban chum
 write_files:
   - path: /etc/sudoers.d/77-{{ ansible_user["sudo_group"] }}
     defer: true
@@ -122,8 +116,8 @@ write_files:
       port = 22,2244,2266
       filter = sshd
       logpath = /var/log/auth.log
-      findtime = 900s
-      bantime = 900s
+      findtime = 1800s
+      bantime = 21600s
       ignoreip = 68.96.0.0/16
 package_update: true
 package_upgrade: true
